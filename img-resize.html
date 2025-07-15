@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Resize your images online for free using our fast and easy ToolHub Image Resizer. Adjust dimensions, maintain aspect ratio, and download high-quality resized images instantly. Perfect for web, social media, and more.">
+    <meta name="keywords" content="image resizer, resize image, online image resizer, free image resizer, image compressor, photo resizer, image dimension editor, image scaling, crop image, web image optimizer, social media image tool, picture resizer, change image size, image converter, image editor, online tool, free online tool, image compression, high quality image resize, fast image resizer, ToolHub">
+    <title>ToolHub - Free Online Image Resizer Tool</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts (Optional, for a modern UI look) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Base styles for body and typography */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #333;
+        }
+
+        /* Custom styles for the drag & drop area */
+        .drag-area {
+            border: 2px dashed #cbd5e1; /* slate-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: border-color 0.3s ease;
+        }
+        .drag-area.highlight {
+            border-color: #3b82f6; /* blue-500 */
+        }
+
+        /* Hide the default file input */
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* Ensure canvas container handles overflow if image is very wide/tall */
+        .canvas-container {
+            overflow-x: auto; /* Allows horizontal scrolling for very wide images */
+            max-width: 100%;
+        }
+
+        /* Image preview responsiveness */
+        .image-preview {
+            max-width: 100%;
+            height: auto;
+            display: block; /* Ensures no extra space below image */
+        }
+
+        /* Hide scrollbar for Webkit browsers */
+        .canvas-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .canvas-container::-webkit-scrollbar-thumb {
+            background-color: #a0aec0;
+            border-radius: 4px;
+        }
+        .canvas-container::-webkit-scrollbar-track {
+            background-color: #edf2f7;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Top Bar Ad Space -->
+    <div class="w-full bg-white py-2 shadow-md flex justify-center items-center text-center text-sm text-gray-500 md:text-base">
+        <div class="max-w-7xl w-full mx-auto p-2">
+            <!-- Google AdSense Ad Unit (Top Bar) -->
+            <!-- Instructions: Replace 'YOUR_ADSENSE_PUB_ID' and 'YOUR_ADSENSE_TOP_SLOT_ID' with your actual AdSense codes.
+                 Uncomment the script tags to activate. -->
+            <!--
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_ADSENSE_PUB_ID" crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block; width:100%; height:90px;"
+                 data-ad-client="YOUR_ADSENSE_PUB_ID"
+                 data-ad-slot="YOUR_ADSENSE_TOP_SLOT_ID"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+            -->
+            <p>Advertisement: Your responsive top banner ad will appear here.</p>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto px-4 py-8 md:py-12">
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-blue-700 mb-2">Free Online Image Resizer Tool</h1>
+            <p class="text-lg md:text-xl text-gray-600">Quickly resize images to any dimension with ease and precision.</p>
+        </header>
+
+        <section class="bg-white p-6 md:p-8 rounded-lg shadow-xl mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Upload Your Image</h2>
+
+            <div id="dragArea" class="drag-area flex flex-col items-center justify-center p-8 text-center text-gray-500 hover:border-blue-400 cursor-pointer transition duration-300 ease-in-out">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p class="text-lg mb-2">Drag & Drop your image here, or</p>
+                <button id="browseBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md transition duration-300 ease-in-out">
+                    Browse Files
+                </button>
+                <input type="file" id="imageInput" accept="image/*" class="hidden-file-input" aria-label="Upload Image File">
+            </div>
+
+            <div id="imageControls" class="mt-8 hidden">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Preview & Resize Options</h2>
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="md:w-1/2 bg-gray-50 p-4 rounded-lg flex items-center justify-center min-h-[200px] border border-gray-200">
+                        <img id="imagePreview" src="#" alt="Uploaded Image Preview" class="image-preview rounded-md shadow-sm hidden">
+                        <p id="noImageText" class="text-gray-500">No image selected</p>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="widthInput" class="block text-sm font-medium text-gray-700 mb-1">Width (pixels)</label>
+                                <input type="number" id="widthInput" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g., 800" min="1" aria-label="Set image width in pixels">
+                            </div>
+                            <div>
+                                <label for="heightInput" class="block text-sm font-medium text-gray-700 mb-1">Height (pixels)</label>
+                                <input type="number" id="heightInput" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g., 600" min="1" aria-label="Set image height in pixels">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center mb-6">
+                            <input id="aspectRatioLock" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" aria-label="Lock aspect ratio checkbox">
+                            <label for="aspectRatioLock" class="ml-2 block text-sm text-gray-900">Lock Aspect Ratio</label>
+                        </div>
+
+                        <button id="resizeBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out mb-4 disabled:opacity-50" disabled aria-label="Resize Image Button">
+                            Resize Image
+                        </button>
+
+                        <button id="downloadBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out hidden disabled:opacity-50" disabled aria-label="Download Resized Image">
+                            Download Resized Image
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-6 text-sm text-gray-600">
+                    <p>Original Dimensions: <span id="originalDimensions" class="font-medium">N/A</span></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="canvasContainer" class="canvas-container hidden bg-white p-6 md:p-8 rounded-lg shadow-xl mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Resized Image Output</h2>
+            <canvas id="imageCanvas" class="border border-gray-300 rounded-md w-full h-auto max-w-full block mx-auto"></canvas>
+            <p id="canvasPlaceholder" class="text-center text-gray-500 mt-4">Your resized image will appear here after clicking "Resize Image".</p>
+        </section>
+
+        <section class="bg-white p-6 md:p-8 rounded-lg shadow-xl mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Why Use Our Free Image Resizer?</h2>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                Our ToolHub Image Resizer offers a simple, fast, and efficient way to change the dimensions of your images without compromising quality. Whether you need to prepare images for your website, social media profiles, email attachments, or simply reduce file size, our online tool has got you covered. It's completely free, requires no software installation, and works directly in your browser.
+            </p>
+            <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2">
+                <li><strong>Instant Previews:</strong> See your resized image before downloading.</li>
+                <li><strong>Aspect Ratio Lock:</strong> Easily maintain the original proportions to avoid distortion.</li>
+                <li><strong>High Quality Output:</strong> Resizes images while preserving clarity and sharpness.</li>
+                <li><strong>User-Friendly Interface:</strong> Designed for intuitive use on any device.</li>
+                <li><strong>Privacy Focused:</strong> Your images are processed directly in your browser, ensuring no uploads to our servers.</li>
+                <li><strong>Optimized for SEO:</strong> Perfect for optimizing images for faster web performance.</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Footer Ad Space -->
+    <div class="w-full bg-white py-4 shadow-t-lg flex justify-center items-center text-center text-sm text-gray-500 md:text-base mt-auto">
+        <div class="max-w-7xl w-full mx-auto p-2">
+            <!-- Google AdSense Ad Unit (Footer) -->
+            <!-- Instructions: Replace 'YOUR_ADSENSE_PUB_ID' and 'YOUR_ADSENSE_FOOTER_SLOT_ID' with your actual AdSense codes.
+                 Uncomment the script tags to activate. -->
+            <!--
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_ADSENSE_PUB_ID" crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block; width:100%; height:90px;"
+                 data-ad-client="YOUR_ADSENSE_PUB_ID"
+                 data-ad-slot="YOUR_ADSENSE_FOOTER_SLOT_ID"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+            -->
+            <p>Advertisement: Your responsive bottom banner ad will appear here.</p>
+        </div>
+    </div>
+
+    <script>
+        // Get references to all necessary DOM elements
+        const dragArea = document.getElementById('dragArea');
+        const browseBtn = document.getElementById('browseBtn');
+        const imageInput = document.getElementById('imageInput');
+        const imageControls = document.getElementById('imageControls');
+        const imagePreview = document.getElementById('imagePreview');
+        const noImageText = document.getElementById('noImageText');
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const aspectRatioLock = document.getElementById('aspectRatioLock');
+        const resizeBtn = document.getElementById('resizeBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const imageCanvas = document.getElementById('imageCanvas');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const canvasPlaceholder = document.getElementById('canvasPlaceholder');
+        const originalDimensionsSpan = document.getElementById('originalDimensions');
+        const ctx = imageCanvas.getContext('2d');
+
+        let originalImage = null; // Stores the original image object
+        let originalWidth = 0;
+        let originalHeight = 0;
+        let currentFile = null; // Stores the File object for determining download type
+
+        // --- Drag & Drop Functionality ---
+        dragArea.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Prevent default to allow drop
+            dragArea.classList.add('highlight'); // Add visual highlight
+        });
+
+        dragArea.addEventListener('dragleave', () => {
+            dragArea.classList.remove('highlight'); // Remove highlight on drag leave
+        });
+
+        dragArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragArea.classList.remove('highlight');
+            const files = e.dataTransfer.files; // Get dropped files
+            if (files.length > 0) {
+                handleFile(files[0]); // Process the first dropped file
+            }
+        });
+
+        // --- File Input Functionality ---
+        browseBtn.addEventListener('click', () => {
+            imageInput.click(); // Programmatically click the hidden file input
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]); // Process the selected file
+            }
+        });
+
+        /**
+         * Handles the selected or dropped image file.
+         * @param {File} file - The image file to process.
+         */
+        function handleFile(file) {
+            // Basic validation for image type
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (e.g., JPEG, PNG, GIF, WEBP).');
+                resetTool();
+                return;
+            }
+
+            currentFile = file; // Store the file for later use (e.g., download format)
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img; // Store the loaded image
+                    originalWidth = img.width;
+                    originalHeight = img.height;
+
+                    // Display image preview
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    noImageText.classList.add('hidden');
+                    imageControls.classList.remove('hidden'); // Show controls section
+
+                    resizeBtn.disabled = false; // Enable resize button
+                    downloadBtn.classList.add('hidden'); // Hide download until resize
+                    canvasContainer.classList.add('hidden'); // Hide canvas until resize
+
+                    // Populate dimensions with original values
+                    widthInput.value = originalWidth;
+                    heightInput.value = originalHeight;
+                    originalDimensionsSpan.textContent = `${originalWidth}px x ${originalHeight}px`;
+
+                    // Clear canvas and reset placeholder
+                    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+                    imageCanvas.width = 0;
+                    imageCanvas.height = 0;
+                    canvasPlaceholder.classList.remove('hidden');
+                };
+                img.src = e.target.result; // Set image source to data URL
+            };
+            reader.readAsDataURL(file); // Read the file as a Data URL
+        }
+
+        /**
+         * Resets the tool to its initial state.
+         */
+        function resetTool() {
+            originalImage = null;
+            originalWidth = 0;
+            originalHeight = 0;
+            currentFile = null;
+
+            imagePreview.src = '#';
+            imagePreview.classList.add('hidden');
+            noImageText.classList.remove('hidden');
+            imageControls.classList.add('hidden');
+            resizeBtn.disabled = true;
+            downloadBtn.classList.add('hidden');
+            canvasContainer.classList.add('hidden');
+            originalDimensionsSpan.textContent = 'N/A';
+
+            // Clear and reset canvas dimensions
+            ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+            imageCanvas.width = 0;
+            imageCanvas.height = 0;
+            canvasPlaceholder.classList.remove('hidden');
+        }
+
+        // --- Dimension Input & Aspect Ratio Logic ---
+        widthInput.addEventListener('input', () => {
+            if (aspectRatioLock.checked && originalImage) {
+                const newWidth = parseInt(widthInput.value);
+                if (!isNaN(newWidth) && newWidth > 0) {
+                    // Calculate new height to maintain aspect ratio
+                    heightInput.value = Math.round(newWidth / (originalWidth / originalHeight));
+                }
+            }
+        });
+
+        heightInput.addEventListener('input', () => {
+            if (aspectRatioLock.checked && originalImage) {
+                const newHeight = parseInt(heightInput.value);
+                if (!isNaN(newHeight) && newHeight > 0) {
+                    // Calculate new width to maintain aspect ratio
+                    widthInput.value = Math.round(newHeight * (originalWidth / originalHeight));
+                }
+            }
+        });
+
+        // Ensure consistency when aspect ratio lock is toggled
+        aspectRatioLock.addEventListener('change', () => {
+            if (aspectRatioLock.checked && originalImage) {
+                const currentWidth = parseInt(widthInput.value);
+                const currentHeight = parseInt(heightInput.value);
+
+                if (!isNaN(currentWidth) && currentWidth > 0) {
+                    // If width is valid, prioritize it and recalculate height
+                    heightInput.value = Math.round(currentWidth / (originalWidth / originalHeight));
+                } else if (!isNaN(currentHeight) && currentHeight > 0) {
+                    // If height is valid but width isn't, prioritize height and recalculate width
+                    widthInput.value = Math.round(currentHeight * (originalWidth / originalHeight));
+                }
+            }
+            // No explicit action needed if unchecked, as inputs are independently editable then
+        });
+
+
+        // --- Resize & Download Logic ---
+        resizeBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                alert('Please upload an image first to resize.');
+                return;
+            }
+
+            const newWidth = parseInt(widthInput.value);
+            const newHeight = parseInt(heightInput.value);
+
+            if (isNaN(newWidth) || isNaN(newHeight) || newWidth <= 0 || newHeight <= 0) {
+                alert('Please enter valid positive dimensions for width and height.');
+                return;
+            }
+
+            // Set canvas dimensions to the desired output size
+            imageCanvas.width = newWidth;
+            imageCanvas.height = newHeight;
+
+            // Clear previous drawing on the canvas
+            ctx.clearRect(0, 0, newWidth, newHeight);
+
+            // Draw the original image onto the canvas, scaled to the new dimensions
+            // For better quality downscaling, especially for very large images,
+            // more advanced algorithms (e.g., bicubic interpolation via multiple drawImage calls)
+            // could be implemented, but simple drawImage is standard and performs well.
+            ctx.drawImage(originalImage, 0, 0, newWidth, newHeight);
+
+            // Show canvas and enable download button
+            canvasContainer.classList.remove('hidden');
+            canvasPlaceholder.classList.add('hidden');
+            downloadBtn.classList.remove('hidden');
+            downloadBtn.disabled = false;
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!originalImage || !imageCanvas.width || !imageCanvas.height) {
+                alert('No resized image to download. Please resize an image first.');
+                return;
+            }
+
+            let fileExtension = 'png'; // Default download format
+            let mimeType = 'image/png';
+            let quality = 0.9; // Quality for JPEG/WEBP
+
+            // Determine download format based on the original file type
+            if (currentFile) {
+                if (currentFile.type.includes('jpeg')) {
+                    fileExtension = 'jpeg';
+                    mimeType = 'image/jpeg';
+                } else if (currentFile.type.includes('webp')) {
+                    fileExtension = 'webp';
+                    mimeType = 'image/webp';
+                }
+                // For other types, default to png or use their specific mime type if supported by toDataURL
+            }
+
+            // Get Data URL from canvas (image content)
+            const dataURL = imageCanvas.toDataURL(mimeType, quality);
+
+            // Create a temporary anchor element to trigger download
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = `ToolHub_resized_image.${fileExtension}`; // Suggest a filename
+            document.body.appendChild(a); // Required for Firefox to click
+            a.click(); // Programmatically click to start download
+            document.body.removeChild(a); // Clean up the temporary element
+        });
+
+        // Initialize the tool state when the page loads
+        document.addEventListener('DOMContentLoaded', resetTool);
+
+    </script>
+</body>
+</html>
+

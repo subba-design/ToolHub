@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Pro - Simple & User Friendly</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #d4a574 0%, #b8860b 100%);
+            font-family: 'Arial', sans-serif;
+        }
+        .calculator-button {
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .calculator-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .calculator-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .result-display {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #8b6914;
+        }
+        .ad-space {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #8b6914;
+            min-height: 90px;
+        }
+        .nav-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #8b6914;
+            transition: all 0.3s ease;
+        }
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+        .nav-button.active {
+            background: #8b6914;
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-white bg-opacity-90 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-yellow-800 flex items-center">
+                    <i class="fas fa-calculator mr-3"></i>Calculator Pro
+                </h1>
+                <button id="themeToggle" class="nav-button px-4 py-2 rounded-full">
+                    <i class="fas fa-palette mr-2"></i>Theme
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Top Ad Space -->
+    <div class="max-w-4xl mx-auto px-4 py-4">
+        <div class="ad-space rounded-lg flex items-center justify-center text-yellow-800">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+                crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXX"
+                data-ad-slot="1234567890"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+            <span class="text-sm opacity-60">Advertisement Space</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="max-w-4xl mx-auto px-4 mb-4">
+        <div class="flex flex-wrap gap-2 justify-center">
+            <button class="nav-button active px-4 py-2 rounded-full text-sm" data-mode="basic">
+                <i class="fas fa-calculator mr-2"></i>Basic
+            </button>
+            <button class="nav-button px-4 py-2 rounded-full text-sm" data-mode="scientific">
+                <i class="fas fa-flask mr-2"></i>Scientific
+            </button>
+            <button class="nav-button px-4 py-2 rounded-full text-sm" data-mode="converter">
+                <i class="fas fa-exchange-alt mr-2"></i>Convert
+            </button>
+            <button class="nav-button px-4 py-2 rounded-full text-sm" data-mode="history">
+                <i class="fas fa-history mr-2"></i>History
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Calculator Container -->
+    <div class="max-w-lg mx-auto px-4">
+        <div class="bg-white bg-opacity-95 rounded-2xl shadow-2xl p-6 border-2 border-yellow-700">
+            
+            <!-- Display -->
+            <div class="result-display rounded-xl p-4 mb-6">
+                <div id="display" class="text-right text-3xl font-mono text-gray-800 min-h-[50px] flex items-center justify-end">0</div>
+                <div id="expression" class="text-right text-sm text-gray-500 min-h-[20px]"></div>
+            </div>
+
+            <!-- Basic Calculator -->
+            <div id="basicCalculator" class="calculator-mode">
+                <div class="grid grid-cols-4 gap-3">
+                    <!-- Row 1 -->
+                    <button class="calculator-button bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl font-bold text-lg" onclick="clearAll()">C</button>
+                    <button class="calculator-button bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl font-bold text-lg" onclick="clearEntry()">CE</button>
+                    <button class="calculator-button bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl font-bold text-lg" onclick="backspace()">⌫</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl font-bold text-lg" onclick="appendOperator('/')">÷</button>
+                    
+                    <!-- Row 2 -->
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('7')">7</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('8')">8</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('9')">9</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl font-bold text-lg" onclick="appendOperator('*')">×</button>
+                    
+                    <!-- Row 3 -->
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('4')">4</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('5')">5</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('6')">6</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl font-bold text-lg" onclick="appendOperator('-')">−</button>
+                    
+                    <!-- Row 4 -->
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('1')">1</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('2')">2</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('3')">3</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl font-bold text-lg" onclick="appendOperator('+')">+</button>
+                    
+                    <!-- Row 5 -->
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg col-span-2" onclick="appendNumber('0')">0</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-4 rounded-xl font-bold text-lg" onclick="appendNumber('.')">.</button>
+                    <button class="calculator-button bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold text-lg" onclick="calculate()">=</button>
+                </div>
+            </div>
+
+            <!-- Scientific Calculator -->
+            <div id="scientificCalculator" class="calculator-mode hidden">
+                <div class="grid grid-cols-5 gap-2 text-sm">
+                    <!-- Scientific functions -->
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="scientificFunction('sin')">sin</button>
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="scientificFunction('cos')">cos</button>
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="scientificFunction('tan')">tan</button>
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="scientificFunction('log')">log</button>
+                    <button class="calculator-button bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg" onclick="clearAll()">C</button>
+                    
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="scientificFunction('sqrt')">√</button>
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="scientificFunction('power')">x²</button>
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="scientificFunction('factorial')">x!</button>
+                    <button class="calculator-button bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg" onclick="appendNumber('3.14159')">π</button>
+                    <button class="calculator-button bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg" onclick="backspace()">⌫</button>
+                    
+                    <!-- Numbers and operators -->
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('7')">7</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('8')">8</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('9')">9</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg" onclick="appendOperator('/')">/</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg" onclick="appendOperator('*')">*</button>
+                    
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('4')">4</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('5')">5</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('6')">6</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg" onclick="appendOperator('-')">-</button>
+                    <button class="calculator-button bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg" onclick="appendOperator('+')">+</button>
+                    
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('1')">1</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('2')">2</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('3')">3</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg col-span-2" onclick="appendNumber('0')">0</button>
+                    
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendNumber('.')">.</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendOperator('(')">(</button>
+                    <button class="calculator-button bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg" onclick="appendOperator(')')">)</button>
+                    <button class="calculator-button bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg col-span-2" onclick="calculate()">=</button>
+                </div>
+            </div>
+
+            <!-- Unit Converter -->
+            <div id="converter" class="calculator-mode hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Convert</label>
+                        <select id="conversionType" class="w-full p-3 border border-yellow-600 rounded-lg">
+                            <option value="length">Length</option>
+                            <option value="weight">Weight</option>
+                            <option value="temperature">Temperature</option>
+                            <option value="area">Area</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <input type="number" id="fromValue" placeholder="Enter value" class="w-full p-3 border border-yellow-600 rounded-lg">
+                            <select id="fromUnit" class="w-full p-2 border border-yellow-600 rounded-lg mt-2">
+                                <option value="m">Meter</option>
+                                <option value="km">Kilometer</option>
+                                <option value="cm">Centimeter</option>
+                                <option value="ft">Feet</option>
+                                <option value="in">Inch</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="number" id="toValue" placeholder="Result" readonly class="w-full p-3 border border-yellow-600 rounded-lg bg-gray-50">
+                            <select id="toUnit" class="w-full p-2 border border-yellow-600 rounded-lg mt-2">
+                                <option value="m">Meter</option>
+                                <option value="km">Kilometer</option>
+                                <option value="cm">Centimeter</option>
+                                <option value="ft">Feet</option>
+                                <option value="in">Inch</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="convertUnits()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-bold">Convert</button>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div id="history" class="calculator-mode hidden">
+                <div class="max-h-64 overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-700">Calculation History</h3>
+                        <button onclick="clearHistory()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Clear</button>
+                    </div>
+                    <div id="historyList" class="space-y-2">
+                        <p class="text-gray-500 text-center">No calculations yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Ad Space -->
+    <div class="max-w-4xl mx-auto px-4 py-6">
+        <div class="ad-space rounded-lg flex items-center justify-center text-yellow-800">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+                crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXX"
+                data-ad-slot="0987654321"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+            <span class="text-sm opacity-60">Advertisement Space</span>
+        </div>
+    </div>
+
+    <script>
+        // Calculator State
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = '';
+        let waitingForNewInput = false;
+        let calculationHistory = JSON.parse(localStorage.getItem('calculatorHistory')) || [];
+
+        // DOM Elements
+        const display = document.getElementById('display');
+        const expression = document.getElementById('expression');
+        const navButtons = document.querySelectorAll('[data-mode]');
+        const calculatorModes = document.querySelectorAll('.calculator-mode');
+
+        // Initialize
+        updateDisplay();
+        loadHistory();
+
+        // Navigation
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const mode = button.dataset.mode;
+                switchMode(mode);
+                
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
+
+        function switchMode(mode) {
+            calculatorModes.forEach(calc => calc.classList.add('hidden'));
+            document.getElementById(mode === 'basic' ? 'basicCalculator' : 
+                                 mode === 'scientific' ? 'scientificCalculator' : 
+                                 mode === 'converter' ? 'converter' : 'history').classList.remove('hidden');
+        }
+
+        // Basic Calculator Functions
+        function appendNumber(num) {
+            if (waitingForNewInput) {
+                currentInput = num;
+                waitingForNewInput = false;
+            } else {
+                currentInput = currentInput === '0' ? num : currentInput + num;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (operator && !waitingForNewInput) {
+                calculate();
+            }
+            
+            previousInput = currentInput;
+            operator = op;
+            waitingForNewInput = true;
+            updateExpression();
+        }
+
+        function calculate() {
+            if (!operator || waitingForNewInput) return;
+            
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            let result;
+            
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = current !== 0 ? prev / current : 'Error';
+                    break;
+                default:
+                    return;
+            }
+            
+            if (result !== 'Error') {
+                const calculation = `${previousInput} ${operator} ${currentInput} = ${result}`;
+                addToHistory(calculation);
+                currentInput = result.toString();
+            } else {
+                currentInput = '0';
+            }
+            
+            operator = '';
+            previousInput = '';
+            waitingForNewInput = true;
+            updateDisplay();
+            updateExpression();
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operator = '';
+            waitingForNewInput = false;
+            updateDisplay();
+            updateExpression();
+        }
+
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // Scientific Functions
+        function scientificFunction(func) {
+            const current = parseFloat(currentInput);
+            let result;
+            
+            switch (func) {
+                case 'sin':
+                    result = Math.sin(current * Math.PI / 180);
+                    break;
+                case 'cos':
+                    result = Math.cos(current * Math.PI / 180);
+                    break;
+                case 'tan':
+                    result = Math.tan(current * Math.PI / 180);
+                    break;
+                case 'log':
+                    result = Math.log10(current);
+                    break;
+                case 'sqrt':
+                    result = Math.sqrt(current);
+                    break;
+                case 'power':
+                    result = current * current;
+                    break;
+                case 'factorial':
+                    result = factorial(current);
+                    break;
+            }
+            
+            if (!isNaN(result) && isFinite(result)) {
+                const calculation = `${func}(${current}) = ${result}`;
+                addToHistory(calculation);
+                currentInput = result.toString();
+                waitingForNewInput = true;
+                updateDisplay();
+            }
+        }
+
+        function factorial(n) {
+            if (n < 0 || !Number.isInteger(n)) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        // Unit Converter
+        function convertUnits() {
+            const value = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const type = document.getElementById('conversionType').value;
+            
+            if (isNaN(value)) return;
+            
+            let result = convert(value, fromUnit, toUnit, type);
+            document.getElementById('toValue').value = result.toFixed(6);
+        }
+
+        function convert(value, from, to, type) {
+            const conversions = {
+                length: {
+                    m: 1,
+                    km: 0.001,
+                    cm: 100,
+                    ft: 3.28084,
+                    in: 39.3701
+                },
+                weight: {
+                    kg: 1,
+                    g: 1000,
+                    lb: 2.20462,
+                    oz: 35.274
+                },
+                temperature: {
+                    c: (v) => v,
+                    f: (v) => (v * 9/5) + 32,
+                    k: (v) => v + 273.15
+                }
+            };
+            
+            if (type === 'temperature') {
+                // Temperature conversion logic would go here
+                return value;
+            } else {
+                const factor = conversions[type];
+                return (value / factor[from]) * factor[to];
+            }
+        }
+
+        // History Management
+        function addToHistory(calculation) {
+            calculationHistory.unshift(calculation);
+            if (calculationHistory.length > 50) {
+                calculationHistory = calculationHistory.slice(0, 50);
+            }
+            localStorage.setItem('calculatorHistory', JSON.stringify(calculationHistory));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<p class="text-gray-500 text-center">No calculations yet</p>';
+                return;
+            }
+            
+            historyList.innerHTML = calculationHistory.map(calc => 
+                `<div class="bg-gray-100 p-2 rounded text-sm font-mono">${calc}</div>`
+            ).join('');
+        }
+
+        function clearHistory() {
+            calculationHistory = [];
+            localStorage.removeItem('calculatorHistory');
+            loadHistory();
+        }
+
+        // Display Updates
+        function updateDisplay() {
+            display.textContent = parseFloat(currentInput).toLocaleString();
+        }
+
+        function updateExpression() {
+            if (operator && previousInput) {
+                expression.textContent = `${previousInput} ${operator}`;
+            } else {
+                expression.textContent = '';
+            }
+        }
+
+        // Theme Toggle
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+        });
+
+        // Keyboard Support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') {
+                appendNumber(e.key);
+            } else if (['+', '-', '*', '/'].includes(e.key)) {
+                appendOperator(e.key);
+            } else if (e.key === 'Enter' || e.key === '=') {
+                calculate();
+            } else if (e.key === 'Escape') {
+                clearAll();
+            } else if (e.key === 'Backspace') {
+                backspace();
+            } else if (e.key === '.') {
+                appendNumber('.');
+            }
+        });
+
+        // Unit Converter Event Listeners
+        document.getElementById('conversionType').addEventListener('change', updateUnitOptions);
+        document.getElementById('fromValue').addEventListener('input', convertUnits);
+        document.getElementById('fromUnit').addEventListener('change', convertUnits);
+        document.getElementById('toUnit').addEventListener('change', convertUnits);
+
+        function updateUnitOptions() {
+            const type = document.getElementById('conversionType').value;
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            
+            const units = {
+                length: [
+                    {value: 'm', text: 'Meter'},
+                    {value: 'km', text: 'Kilometer'},
+                    {value: 'cm', text: 'Centimeter'},
+                    {value: 'ft', text: 'Feet'},
+                    {value: 'in', text: 'Inch'}
+                ],
+                weight: [
+                    {value: 'kg', text: 'Kilogram'},
+                    {value: 'g', text: 'Gram'},
+                    {value: 'lb', text: 'Pound'},
+                    {value: 'oz', text: 'Ounce'}
+                ],
+                temperature: [
+                    {value: 'c', text: 'Celsius'},
+                    {value: 'f', text: 'Fahrenheit'},
+                    {value: 'k', text: 'Kelvin'}
+                ],
+                area: [
+                    {value: 'm2', text: 'Square Meter'},
+                    {value: 'km2', text: 'Square Kilometer'},
+                    {value: 'ft2', text: 'Square Feet'},
+                    {value: 'in2', text: 'Square Inch'}
+                ]
+            };
+            
+            const options = units[type] || units.length;
+            
+            fromUnit.innerHTML = options.map(unit => 
+                `<option value="${unit.value}">${unit.text}</option>`
+            ).join('');
+            
+            toUnit.innerHTML = options.map(unit => 
+                `<option value="${unit.value}">${unit.text}</option>`
+            ).join('');
+        }
+    </script>
+</body>
+</html>
+

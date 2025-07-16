@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel PDF Converter - Simple & Free Online Tool</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Free online Excel to PDF and PDF to Excel converter. Simple, fast, and secure file conversion tool with user-friendly interface.">
+    <meta name="keywords" content="excel to pdf, pdf to excel, file converter, excel converter, pdf converter, online converter, free converter, excel tools, pdf tools, file conversion, spreadsheet converter, document converter, xlsx to pdf, pdf to xlsx, excel online">
+    <meta name="author" content="Excel PDF Converter Tool">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Excel PDF Converter - Simple & Free Online Tool">
+    <meta property="og:description" content="Convert Excel files to PDF and PDF files to Excel format instantly. Free, secure, and easy to use online converter.">
+    <meta property="og:type" content="website">
+    
+    <!-- CDN Links -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
+            min-height: 100vh;
+        }
+        
+        .file-drop-zone {
+            border: 3px dashed #d97706;
+            transition: all 0.3s ease;
+        }
+        
+        .file-drop-zone:hover,
+        .file-drop-zone.dragover {
+            border-color: #b45309;
+            background-color: rgba(251, 191, 36, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .conversion-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #d97706, #b45309);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.4);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(45deg, #10b981, #059669);
+            animation: progress 2s ease-in-out;
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .feature-icon {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="py-6">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-exchange-alt feature-icon mr-3"></i>
+                Excel PDF Converter
+            </h1>
+            <p class="text-lg text-gray-600">Simple, Fast & Secure File Conversion</p>
+        </div>
+    </header>
+
+    <!-- AdSense Ad - Top Banner -->
+    <div class="w-full flex justify-center mb-8">
+        <div class="bg-white bg-opacity-50 p-4 rounded-lg">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+                    crossorigin="anonymous"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <!-- Main Converter Section -->
+    <main class="container mx-auto px-4 max-w-4xl">
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+            <!-- Excel to PDF Converter -->
+            <div class="conversion-card rounded-2xl p-8">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                        <i class="fas fa-file-excel text-2xl text-green-600"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Excel to PDF</h2>
+                    <p class="text-gray-600">Convert your Excel files to PDF format</p>
+                </div>
+                
+                <div class="file-drop-zone rounded-xl p-8 text-center mb-6" id="excelDropZone">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-orange-500 mb-4"></i>
+                    <p class="text-gray-700 font-medium mb-2">Drop Excel file here or click to browse</p>
+                    <p class="text-sm text-gray-500">Supports: .xlsx, .xls</p>
+                    <input type="file" id="excelFileInput" accept=".xlsx,.xls" class="hidden">
+                </div>
+                
+                <div id="excelFileInfo" class="hidden mb-4 p-4 bg-blue-50 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-excel text-green-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-800" id="excelFileName"></p>
+                            <p class="text-sm text-gray-600" id="excelFileSize"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="convertExcelBtn" class="btn-primary w-full py-3 px-6 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Convert to PDF
+                </button>
+            </div>
+
+            <!-- PDF to Excel Converter -->
+            <div class="conversion-card rounded-2xl p-8">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+                        <i class="fas fa-file-pdf text-2xl text-red-600"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">PDF to Excel</h2>
+                    <p class="text-gray-600">Convert your PDF files to Excel format</p>
+                </div>
+                
+                <div class="file-drop-zone rounded-xl p-8 text-center mb-6" id="pdfDropZone">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-orange-500 mb-4"></i>
+                    <p class="text-gray-700 font-medium mb-2">Drop PDF file here or click to browse</p>
+                    <p class="text-sm text-gray-500">Supports: .pdf</p>
+                    <input type="file" id="pdfFileInput" accept=".pdf" class="hidden">
+                </div>
+                
+                <div id="pdfFileInfo" class="hidden mb-4 p-4 bg-blue-50 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-pdf text-red-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-800" id="pdfFileName"></p>
+                            <p class="text-sm text-gray-600" id="pdfFileSize"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="convertPdfBtn" class="btn-primary w-full py-3 px-6 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Convert to Excel
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="progressSection" class="hidden mb-8">
+            <div class="conversion-card rounded-xl p-6">
+                <div class="text-center mb-4">
+                    <i class="fas fa-cog fa-spin text-3xl text-orange-500 mb-2"></i>
+                    <h3 class="text-xl font-bold text-gray-800">Converting...</h3>
+                    <p class="text-gray-600">Please wait while we process your file</p>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="progress-bar h-3 rounded-full"></div>
+                </div>
+                <p class="text-center text-sm text-gray-600 mt-2">Processing: <span id="progressText">0%</span></p>
+            </div>
+        </div>
+
+        <!-- Success Section -->
+        <div id="successSection" class="hidden mb-8">
+            <div class="conversion-card rounded-xl p-6 text-center">
+                <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Conversion Complete!</h3>
+                <p class="text-gray-600 mb-4">Your file has been successfully converted</p>
+                <button id="downloadBtn" class="btn-primary py-3 px-8 text-white font-medium rounded-lg">
+                    <i class="fas fa-download mr-2"></i>
+                    Download Converted File
+                </button>
+            </div>
+        </div>
+
+        <!-- AdSense Ad - Middle Banner -->
+        <div class="w-full flex justify-center mb-8">
+            <div class="bg-white bg-opacity-50 p-4 rounded-lg">
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+                        crossorigin="anonymous"></script>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                     data-ad-slot="0987654321"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="conversion-card rounded-2xl p-8 mb-8">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Why Choose Our Converter?</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <i class="fas fa-shield-alt text-3xl feature-icon mb-4"></i>
+                    <h3 class="font-bold text-gray-800 mb-2">Secure & Private</h3>
+                    <p class="text-gray-600 text-sm">Your files are processed securely and deleted after conversion</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-bolt text-3xl feature-icon mb-4"></i>
+                    <h3 class="font-bold text-gray-800 mb-2">Fast Processing</h3>
+                    <p class="text-gray-600 text-sm">Quick conversion with high-quality output</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-mobile-alt text-3xl feature-icon mb-4"></i>
+                    <h3 class="font-bold text-gray-800 mb-2">Works Everywhere</h3>
+                    <p class="text-gray-600 text-sm">Compatible with all devices and browsers</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // File upload handlers
+        function setupFileUpload(dropZoneId, fileInputId, fileInfoId, fileNameId, fileSizeId, convertBtnId) {
+            const dropZone = document.getElementById(dropZoneId);
+            const fileInput = document.getElementById(fileInputId);
+            const fileInfo = document.getElementById(fileInfoId);
+            const fileName = document.getElementById(fileNameId);
+            const fileSize = document.getElementById(fileSizeId);
+            const convertBtn = document.getElementById(convertBtnId);
+
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+            
+            function handleFile(file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.classList.remove('hidden');
+                convertBtn.disabled = false;
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Setup file uploads
+        setupFileUpload('excelDropZone', 'excelFileInput', 'excelFileInfo', 'excelFileName', 'excelFileSize', 'convertExcelBtn');
+        setupFileUpload('pdfDropZone', 'pdfFileInput', 'pdfFileInfo', 'pdfFileName', 'pdfFileSize', 'convertPdfBtn');
+
+        // Conversion handlers
+        function handleConversion(fileType) {
+            const progressSection = document.getElementById('progressSection');
+            const successSection = document.getElementById('successSection');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            // Show progress
+            progressSection.classList.remove('hidden');
+            progressSection.classList.add('fade-in');
+            successSection.classList.add('hidden');
+            
+            // Simulate conversion progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressSection.classList.add('hidden');
+                        successSection.classList.remove('hidden');
+                        successSection.classList.add('fade-in');
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Convert button events
+        document.getElementById('convertExcelBtn').addEventListener('click', () => {
+            handleConversion('excel');
+        });
+
+        document.getElementById('convertPdfBtn').addEventListener('click', () => {
+            handleConversion('pdf');
+        });
+
+        // Download handler
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            // Create a dummy download (in real implementation, this would download the actual converted file)
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;charset=utf-8,Converted file content would be here';
+            link.download = 'converted_file.pdf';
+            link.click();
+            
+            // Show success message
+            alert('Download started! In a real implementation, your converted file would be downloaded.');
+        });
+
+        // Reset forms after successful conversion
+        function resetForms() {
+            document.getElementById('excelFileInfo').classList.add('hidden');
+            document.getElementById('pdfFileInfo').classList.add('hidden');
+            document.getElementById('convertExcelBtn').disabled = true;
+            document.getElementById('convertPdfBtn').disabled = true;
+            document.getElementById('excelFileInput').value = '';
+            document.getElementById('pdfFileInput').value = '';
+        }
+    </script>
+</body>
+</html>

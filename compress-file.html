@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolHub - File Compressor with Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <style>
+        .bg-light-red { background-color: #fef2f2; }
+        .bg-light-red-100 { background-color: #fee2e2; }
+        .bg-light-red-200 { background-color: #fecaca; }
+        .text-red-600 { color: #dc2626; }
+        .text-red-700 { color: #b91c1c; }
+        .text-red-800 { color: #991b1b; }
+        .border-red-300 { border-color: #fca5a5; }
+        .border-red-400 { border-color: #f87171; }
+        .hover\:bg-red-50:hover { background-color: #fef2f2; }
+        .hover\:bg-red-100:hover { background-color: #fee2e2; }
+        .hover\:bg-red-600:hover { background-color: #dc2626; }
+        .focus\:ring-red-500:focus { --tw-ring-color: #ef4444; }
+        .focus\:border-red-500:focus { border-color: #ef4444; }
+        
+        .drop-zone {
+            border: 2px dashed #fca5a5;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        
+        .file-preview {
+            max-width: 200px;
+            max-height: 150px;
+            object-fit: contain;
+        }
+        
+        .comparison-card {
+            transition: transform 0.2s ease;
+        }
+        
+        .comparison-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-light-red min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b-2 border-red-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-red-500 text-white p-2 rounded-lg">
+                        <i class="fas fa-compress-arrows-alt text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-red-800">ToolHub</h1>
+                        <p class="text-red-600 text-sm">File Compressor with Preview</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4 text-red-600">
+                    <span class="text-sm">
+                        <i class="fas fa-file-pdf mr-1"></i>PDF & Images
+                    </span>
+                    <span class="text-sm">
+                        <i class="fas fa-eye mr-1"></i>Preview
+                    </span>
+                    <span class="text-sm">
+                        <i class="fas fa-download mr-1"></i>Download
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Introduction -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-red-800 mb-2">Compress Your Files</h2>
+            <p class="text-red-600 text-lg">Upload, preview, compress, and download your PDF files and images</p>
+        </div>
+
+        <!-- Upload Zone -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div id="dropZone" class="drop-zone bg-light-red-100 border-2 border-red-300 rounded-lg p-12 text-center cursor-pointer">
+                <div class="space-y-4">
+                    <div class="text-red-500 text-6xl">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-red-800 mb-2">Drop files here or click to browse</h3>
+                        <p class="text-red-600">Supports PDF, JPG, JPEG, PNG, WebP files</p>
+                    </div>
+                    <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
+                        <i class="fas fa-folder-open mr-2"></i>Choose Files
+                    </button>
+                </div>
+            </div>
+            <input type="file" id="fileInput" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" multiple>
+        </div>
+
+        <!-- Compression Controls -->
+        <div id="compressionControls" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+            <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+                <div class="flex items-center space-x-4">
+                    <label class="text-red-700 font-medium">Quality:</label>
+                    <select id="qualitySelect" class="border border-red-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                        <option value="0.8">High (80%)</option>
+                        <option value="0.6" selected>Medium (60%)</option>
+                        <option value="0.4">Low (40%)</option>
+                    </select>
+                </div>
+                <button id="compressBtn" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg font-medium transition duration-200">
+                    <i class="fas fa-compress mr-2"></i>Compress Files
+                </button>
+            </div>
+        </div>
+
+        <!-- File Preview Grid -->
+        <div id="filePreview" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+
+        <!-- Processing Status -->
+        <div id="processingStatus" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+            <div class="text-center">
+                <div class="text-red-500 text-4xl mb-4 pulse-animation">
+                    <i class="fas fa-cog fa-spin"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-red-800 mb-2">Processing Files...</h3>
+                <div class="bg-light-red-100 rounded-full h-4 w-full max-w-md mx-auto">
+                    <div id="progressBar" class="bg-red-500 h-4 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="text-red-600 mt-2">0%</p>
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="resultsContainer" class="hidden">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-red-800 mb-2">Compression Results</h3>
+                <p class="text-red-600">Preview and download your compressed files</p>
+            </div>
+            <div id="resultsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+        </div>
+
+        <!-- Download All Button -->
+        <div id="downloadAllContainer" class="text-center mt-8 hidden">
+            <button id="downloadAllBtn" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg font-medium transition duration-200 text-lg">
+                <i class="fas fa-download mr-2"></i>Download All Files
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t-2 border-red-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-red-600">
+                <p>&copy; 2024 ToolHub. Compress files efficiently with preview functionality.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        class FileCompressor {
+            constructor() {
+                this.selectedFiles = [];
+                this.compressedFiles = [];
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                const dropZone = document.getElementById('dropZone');
+                const fileInput = document.getElementById('fileInput');
+                const compressBtn = document.getElementById('compressBtn');
+                const downloadAllBtn = document.getElementById('downloadAllBtn');
+
+                // Drop zone events
+                dropZone.addEventListener('click', () => fileInput.click());
+                dropZone.addEventListener('dragover', this.handleDragOver.bind(this));
+                dropZone.addEventListener('dragleave', this.handleDragLeave.bind(this));
+                dropZone.addEventListener('drop', this.handleDrop.bind(this));
+
+                // File input change
+                fileInput.addEventListener('change', (e) => this.handleFileSelect(e.target.files));
+
+                // Compress button
+                compressBtn.addEventListener('click', this.compressFiles.bind(this));
+
+                // Download all button
+                downloadAllBtn.addEventListener('click', this.downloadAllFiles.bind(this));
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                e.currentTarget.classList.add('drag-over');
+            }
+
+            handleDragLeave(e) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                e.currentTarget.classList.remove('drag-over');
+                this.handleFileSelect(e.dataTransfer.files);
+            }
+
+            handleFileSelect(files) {
+                this.selectedFiles = Array.from(files).filter(file => {
+                    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                    return validTypes.includes(file.type);
+                });
+
+                if (this.selectedFiles.length > 0) {
+                    this.displayFilePreview();
+                    document.getElementById('compressionControls').classList.remove('hidden');
+                }
+            }
+
+            displayFilePreview() {
+                const previewContainer = document.getElementById('filePreview');
+                previewContainer.innerHTML = '';
+
+                this.selectedFiles.forEach((file, index) => {
+                    const fileCard = document.createElement('div');
+                    fileCard.className = 'bg-white rounded-lg shadow-md p-4 comparison-card';
+                    
+                    const fileName = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+
+                    fileCard.innerHTML = `
+                        <div class="text-center">
+                            <div class="mb-4">
+                                ${file.type.startsWith('image/') ? 
+                                    `<img src="${URL.createObjectURL(file)}" class="file-preview mx-auto rounded-lg" alt="Preview">` :
+                                    `<div class="w-32 h-24 bg-red-100 rounded-lg mx-auto flex items-center justify-center">
+                                        <i class="fas fa-file-pdf text-red-500 text-3xl"></i>
+                                    </div>`
+                                }
+                            </div>
+                            <h4 class="font-semibold text-red-800 mb-1">${fileName}</h4>
+                            <p class="text-red-600 text-sm">${fileSize} MB</p>
+                            <div class="mt-2 text-xs text-red-500">
+                                <i class="fas fa-file mr-1"></i>${file.type.split('/')[1].toUpperCase()}
+                            </div>
+                        </div>
+                    `;
+
+                    previewContainer.appendChild(fileCard);
+                });
+            }
+
+            async compressFiles() {
+                if (this.selectedFiles.length === 0) return;
+
+                const processingStatus = document.getElementById('processingStatus');
+                const progressBar = document.getElementById('progressBar');
+                const progressText = document.getElementById('progressText');
+                
+                processingStatus.classList.remove('hidden');
+                document.getElementById('compressionControls').classList.add('hidden');
+
+                const quality = parseFloat(document.getElementById('qualitySelect').value);
+                this.compressedFiles = [];
+
+                for (let i = 0; i < this.selectedFiles.length; i++) {
+                    const file = this.selectedFiles[i];
+                    const progress = ((i + 1) / this.selectedFiles.length) * 100;
+                    
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+
+                    try {
+                        let compressedFile;
+                        if (file.type === 'application/pdf') {
+                            compressedFile = await this.compressPDF(file, quality);
+                        } else if (file.type.startsWith('image/')) {
+                            compressedFile = await this.compressImage(file, quality);
+                        }
+
+                        if (compressedFile) {
+                            this.compressedFiles.push({
+                                original: file,
+                                compressed: compressedFile,
+                                compressionRatio: ((file.size - compressedFile.size) / file.size * 100).toFixed(1)
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error compressing file:', error);
+                    }
+                }
+
+                processingStatus.classList.add('hidden');
+                this.displayResults();
+            }
+
+            async compressPDF(file, quality) {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                
+                // Simple PDF compression by reducing quality
+                const pdfBytes = await pdfDoc.save({
+                    useObjectStreams: false,
+                    addDefaultPage: false,
+                    objectsPerTick: Math.floor(quality * 50)
+                });
+                
+                return new File([pdfBytes], `compressed_${file.name}`, {
+                    type: 'application/pdf'
+                });
+            }
+
+            async compressImage(file, quality) {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+
+                    img.onload = () => {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+
+                        canvas.toBlob((blob) => {
+                            const compressedFile = new File([blob], `compressed_${file.name}`, {
+                                type: file.type
+                            });
+                            resolve(compressedFile);
+                        }, file.type, quality);
+                    };
+
+                    img.src = URL.createObjectURL(file);
+                });
+            }
+
+            displayResults() {
+                const resultsContainer = document.getElementById('resultsContainer');
+                const resultsGrid = document.getElementById('resultsGrid');
+                const downloadAllContainer = document.getElementById('downloadAllContainer');
+
+                resultsContainer.classList.remove('hidden');
+                downloadAllContainer.classList.remove('hidden');
+                resultsGrid.innerHTML = '';
+
+                this.compressedFiles.forEach((fileData, index) => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'bg-white rounded-xl shadow-lg p-6 comparison-card';
+
+                    const originalSize = (fileData.original.size / 1024 / 1024).toFixed(2);
+                    const compressedSize = (fileData.compressed.size / 1024 / 1024).toFixed(2);
+                    const fileName = fileData.original.name.length > 25 ? fileData.original.name.substring(0, 25) + '...' : fileData.original.name;
+
+                    resultCard.innerHTML = `
+                        <div class="text-center mb-4">
+                            <h4 class="font-semibold text-red-800 mb-2">${fileName}</h4>
+                            <div class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-check mr-1"></i>${fileData.compressionRatio}% reduced
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="text-center">
+                                <h5 class="font-medium text-red-700 mb-2">Original</h5>
+                                <div class="bg-light-red-100 rounded-lg p-4">
+                                    ${fileData.original.type.startsWith('image/') ? 
+                                        `<img src="${URL.createObjectURL(fileData.original)}" class="file-preview mx-auto rounded" alt="Original">` :
+                                        `<div class="w-20 h-16 bg-red-200 rounded mx-auto flex items-center justify-center">
+                                            <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                                        </div>`
+                                    }
+                                    <p class="text-red-600 text-sm mt-2">${originalSize} MB</p>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h5 class="font-medium text-red-700 mb-2">Compressed</h5>
+                                <div class="bg-light-red-100 rounded-lg p-4">
+                                    ${fileData.compressed.type.startsWith('image/') ? 
+                                        `<img src="${URL.createObjectURL(fileData.compressed)}" class="file-preview mx-auto rounded" alt="Compressed">` :
+                                        `<div class="w-20 h-16 bg-red-200 rounded mx-auto flex items-center justify-center">
+                                            <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                                        </div>`
+                                    }
+                                    <p class="text-red-600 text-sm mt-2">${compressedSize} MB</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="compressor.downloadFile(${index})" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-medium transition duration-200">
+                            <i class="fas fa-download mr-2"></i>Download Compressed File
+                        </button>
+                    `;
+
+                    resultsGrid.appendChild(resultCard);
+                });
+            }
+
+            downloadFile(index) {
+                const fileData = this.compressedFiles[index];
+                const url = URL.createObjectURL(fileData.compressed);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileData.compressed.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            downloadAllFiles() {
+                this.compressedFiles.forEach((fileData, index) => {
+                    setTimeout(() => this.downloadFile(index), index * 500);
+                });
+            }
+        }
+
+        // Initialize the compressor
+        const compressor = new FileCompressor();
+    </script>
+</body>
+</html>
